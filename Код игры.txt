@@ -1,0 +1,176 @@
+from pygame import *
+from random import *
+class GameSprite(sprite.Sprite):
+    def __init__(self, player_image, player_x, player_y, player_speed, scale_x, scale_y):
+        super().__init__()
+        self.image = transform.scale(image.load(player_image), (scale_x, scale_y))
+        self.speed = player_speed
+        self.rect = self.image.get_rect()
+        self.rect.x = player_x
+        self.rect.y = player_y
+        self.scale_x = scale_x
+        self.scale_y = scale_y
+    def reset(self):
+        window.blit(self.image, (self.rect.x, self.rect.y))
+
+class Player(GameSprite):
+    def update(self):
+        keys = key.get_pressed()
+        if keys[K_LEFT] and self.rect.x > 0:
+            self.rect.x -= self.speed
+        if keys[K_RIGHT] and self.rect.x < win_width - 74:
+            self.rect.x += self.speed
+        if keys[K_UP] and self.rect.y > 5:
+            self.rect.y -= self.speed
+        if keys[K_DOWN] and self.rect.y < win_height - 80:
+            self.rect.y += self.speed
+class Wall(sprite.Sprite):
+    def __init__(self, color_1, color_2, color_3, wall_x, wall_y, wall_width, wall_height):
+        self.color_1 = color_1
+        self.color_2 = color_2
+        self.color_3 = color_3
+        self.width = wall_width 
+        self.height = wall_height
+        self.image = Surface((self.width, self.height))
+        self.image.fill((color_1, color_2, color_3))
+        self.rect = self.image.get_rect()
+        self.rect.x = wall_x
+        self.rect.y = wall_y
+    def draw_wall(self):
+        window.blit(self.image, (self.rect.x, self.rect.y))
+
+class Water(GameSprite):
+    def update(self):
+        self.rect.x += self.speed
+        if self.rect.x > 659:
+            self.rect.x = 415
+            self.rect.y = 200
+            self.rect.x += self.speed
+
+class Fire(GameSprite):
+    def update(self):
+        self.rect.x -= self.speed
+        if self.rect.x < 435:
+            self.rect.x = 659
+            self.rect.y = 100
+            self.rect.x -= self.speed
+class Ground(GameSprite):
+    def update(self):
+        self.rect.x -= self.speed
+        if self.rect.x < 435:
+            self.rect.x = 659
+            self.rect.y = 300
+            self.rect.x -= self.speed
+class Air(GameSprite):
+    def update(self):
+        self.rect.x += self.speed
+        if self.rect.x > 659:
+            self.rect.x = 435
+            self.rect.y = 400
+            self.rect.x += self.speed
+
+class HSO(GameSprite):
+    def update(self):
+        self.rect.y += self.speed
+        if self.rect.y > 500:
+            self.rect.y = 0
+            self.rect.x = 210
+            self.rect.y += self.speed
+
+class Glass(GameSprite):
+    def update(self):
+        self.rect.y -= self.speed
+        if self.rect.y  < 2:
+            self.rect.y = 500
+            self.rect.x = 330
+            self.rect.y += self.speed
+
+
+
+win_width = 700
+win_height = 500 
+window = display.set_mode((win_width, win_height))
+display.set_caption("Maze")
+background = transform.scale(image.load("phon1.jpg"), (win_width, win_height))
+
+player = Player('Mario.png',0, 410, 5, 40, 40)
+droples_mr1 = Water('droplets.png',450,200,3, 40, 40)
+droples_mr2 = Fire('droplets.png',400,100,2, 40, 40)
+droples_mr3 = Ground('droplets.png',450,300,3, 40, 40)
+droples_mr4 = Air('droplets.png',450,400,randint(1,2), 40, 40)
+portal1 = Water('portal.png',405,195,0,60,60)
+portal2 = Water('portal.png',659,195,0,60,60)
+portal3 = Water('portal.png',405,295,0,60,60)
+portal4 = Water('portal.png',659,295,0,60,60)
+portal5 = Water('portal.png',405,395,0,60,60)
+portal6 = Water('portal.png',659,395,0,60,60)
+glass1 = HSO('poison.png',210,0,3,40,40)
+glass2 = Glass('poison.png',330,500,randint(1,2),40,40)
+w1 = Wall(255, 255, 255, 160, 250 , 20, 470)
+w2 = Wall(255, 255, 255, 160, 0, 20, 140)
+w3 = Wall(255, 255, 255, 280, 400 , 20, 100)
+w4 = Wall(255, 255, 255, 280, 0 , 20, 300)
+w5 = Wall(255, 255, 255, 400, 160, 20, 400)
+w7 = Wall(255, 255, 255, 400, 0, 20, 60)
+w6 = Wall(154, 205, 50, 440, 450 , 245, 50)
+
+mixer.init()
+mixer.music.load('Battle.ogg')
+mixer.music.play(-1)
+font.init()
+font1 = font.SysFont('Arial', 70)
+lose = font1.render('YOU LOSE', True, (154,205,50))
+win = font1.render('YOU WIN',True,(154,205,50))
+
+
+game = True
+finish = False
+clock = time.Clock()
+FPS = 60
+
+
+while game:
+    for e in event.get():
+        if e.type == QUIT:
+            game = False
+    if finish != True:
+        window.blit(background, (0, 0))
+        player.update()
+        player.reset()
+        droples_mr1.update()
+        droples_mr1.reset()
+        droples_mr3.update()
+        droples_mr3.reset()
+        droples_mr4.update()
+        droples_mr4.reset()
+        portal1.update()
+        portal1.reset()
+        portal2.update()
+        portal2.reset()
+        portal3.update()
+        portal3.reset()
+        portal4.update()
+        portal4.reset()
+        portal5.update()
+        portal5.reset()
+        portal6.update()
+        portal6.reset()
+        glass1.update()
+        glass1.reset()
+        glass2.update()
+        glass2.reset()
+        w1.draw_wall()
+        w2.draw_wall()
+        w3.draw_wall()
+        w4.draw_wall()
+        w5.draw_wall()
+        w6.draw_wall()
+        w7.draw_wall()
+        if sprite.collide_rect(player, w1) or sprite.collide_rect(player, w2) or sprite.collide_rect(player, w3) or sprite.collide_rect(player, w4) or sprite.collide_rect(player, w5) or sprite.collide_rect(player, w7) or sprite.collide_rect(player, droples_mr1) or sprite.collide_rect(player, droples_mr3) or sprite.collide_rect(player, droples_mr4) or sprite.collide_rect(player, glass1) or sprite.collide_rect(player, glass2):
+            window.blit(lose, (150,120))
+            finish = True
+        if sprite.collide_rect(player, w6):
+            window.blit(win, (150,120))
+            finish = True
+        display.update()
+        clock.tick(FPS)
